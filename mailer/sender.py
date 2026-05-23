@@ -11,36 +11,32 @@ from mailer.builder import build_email_html, EmailContext
 def _init_resend():
     from dotenv import load_dotenv
 
-    load_dotenv()
+    load_dotenv(override=True)
     resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
 
-FROM_ADDRESS = os.environ.get("FROM_EMAIL", "Toronto Cinema <digest@your-domain.com>")
-REPLY_TO = os.environ.get("REPLY_TO_EMAIL", "")
+def _from_address():
+    return os.environ.get("FROM_EMAIL", "onboarding@resend.dev")
 
 
 def send_digest(ctx: EmailContext) -> dict:
-    """Send a digest email to one subscriber. Returns Resend response."""
+    _init_resend()
     frequency_label = "Today's" if ctx.frequency == "daily" else "This Week's"
     subject = f"🎬 {frequency_label} Toronto Cinema Screenings"
-
     html = build_email_html(ctx)
-
-    params = {
-        "from": FROM_ADDRESS,
-        "to": [ctx.subscriber_email],
-        "subject": subject,
-        "html": html,
-    }
-    if REPLY_TO:
-        params["reply_to"] = REPLY_TO
-
-    response = resend.Emails.send(params)
+    response = resend.Emails.send(
+        {
+            "from": _from_address(),
+            "to": [ctx.subscriber_email],
+            "subject": subject,
+            "html": html,
+        }
+    )
     return response
 
 
 def send_confirmation(email: str, token: str, base_url: str) -> dict:
-    """Send double opt-in confirmation email."""
+    _init_resend()
     confirm_url = f"{base_url}/confirm?token={token}"
     html = f"""<!DOCTYPE html>
 <html><body style="background:#111;color:#f0ece3;font-family:Helvetica,Arial,sans-serif;padding:40px;">
@@ -60,7 +56,7 @@ def send_confirmation(email: str, token: str, base_url: str) -> dict:
 
     return resend.Emails.send(
         {
-            "from": FROM_ADDRESS,
+            "from": _from_address(),
             "to": [email],
             "subject": "Confirm your Toronto Cinema Digest subscription",
             "html": html,

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toronto Cinema Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #141414;
+    --border: #222;
+    --gold: #c9a84c;
+    --gold-dim: #8a6f32;
+    --text: #e8e4dc;
+    --muted: #666;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    animation: fadeUp 0.8s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .header { text-align: center; margin-bottom: 48px; }
+  .header-eyebrow {
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: block;
+  }
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(40px, 8vw, 64px);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -1px;
+  }
+  .header h1 em { font-style: italic; color: var(--gold); }
+  .header p { margin-top: 16px; font-size: 13px; color: var(--muted); line-height: 1.7; }
+  .divider {
+    display: flex; align-items: center; gap: 12px; margin: 32px 0;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .divider span { font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .form-group { margin-bottom: 20px; }
+  label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  input[type="email"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    padding: 14px 16px;
+    border-radius: 2px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="email"]:focus { border-color: var(--gold-dim); }
+  input[type="email"]::placeholder { color: #333; }
+  .cinema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .cinema-option { position: relative; }
+  .cinema-option input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+  .cinema-option label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    transition: all 0.15s;
+    min-height: 44px;
+    line-height: 1.3;
+  }
+  .cinema-option label::before {
+    content: '';
+    width: 14px; height: 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .cinema-option input:checked + label {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: #1a1508;
+  }
+  .cinema-option input:checked + label::before {
+    background: var(--gold);
+    border-color: var(--gold);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%230e0e0e' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-size: 10px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .freq-toggle { display: flex; gap: 8px; }
+  .freq-option { position: relative; flex: 1; }
+  .freq-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+  .freq-option label {
+    display: block;
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .freq-option input:checked + label {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: #1a1508;
+  }
+  .btn-submit {
+    width: 100%;
+    background: var(--gold);
+    color: #0e0e0e;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 16px;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-top: 28px;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { background: #d4b55c; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .status {
+    margin-top: 20px; padding: 14px 16px; border-radius: 2px;
+    font-size: 13px; text-align: center; display: none;
+    animation: fadeUp 0.3s ease both;
+  }
+  .status.success { display: block; background: #0d2b1a; border: 1px solid #1a4d2e; color: #2ecc71; }
+  .status.error   { display: block; background: #2b0d0d; border: 1px solid #4d1a1a; color: #e74c3c; }
+  .select-all-btn {
+    background: none; border: none; color: var(--gold-dim);
+    font-family: 'Syne', sans-serif; font-size: 10px;
+    letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; padding: 0; margin-bottom: 10px;
+    display: block; text-align: right; width: 100%;
+    transition: color 0.15s;
+  }
+  .select-all-btn:hover { color: var(--gold); }
+  .footer { margin-top: 48px; text-align: center; font-size: 11px; color: #333; letter-spacing: 1px; }
+  @media (max-width: 480px) { .cinema-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <span class="header-eyebrow">Toronto Cinema</span>
+    <h1>Your weekly<br><em>screening</em> digest</h1>
+    <p>Showtimes · Letterboxd · Douban · Delivered weekly.</p>
+  </div>
+
+  <form id="subscribeForm">
+    <div class="form-group">
+      <label for="email">Your email</label>
+      <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
+    </div>
+
+    <div class="divider"><span>Select cinemas</span></div>
+
+    <div class="form-group">
+      <button type="button" class="select-all-btn" id="selectAllBtn">Select all</button>
+      <div class="cinema-grid">
+        <div class="cinema-option"><input type="checkbox" id="paradise" value="paradise"><label for="paradise">Paradise on Bloor</label></div>
+        <div class="cinema-option"><input type="checkbox" id="revue" value="revue"><label for="revue">Revue Cinema</label></div>
+        <div class="cinema-option"><input type="checkbox" id="carlton" value="carlton"><label for="carlton">Imagine Carlton</label></div>
+        <div class="cinema-option"><input type="checkbox" id="fox" value="fox"><label for="fox">Fox Theatre</label></div>
+        <div class="cinema-option"><input type="checkbox" id="tiff" value="tiff"><label for="tiff">TIFF Lightbox</label></div>
+        <div class="cinema-option"><input type="checkbox" id="hot-docs" value="hot-docs"><label for="hot-docs">Hot Docs Cinema</label></div>
+        <div class="cinema-option"><input type="checkbox" id="innis" value="innis"><label for="innis">Innis Town Hall</label></div>
+        <div class="cinema-option"><input type="checkbox" id="scotiabank" value="scotiabank"><label for="scotiabank">Scotiabank Theatre</label></div>
+        <div class="cinema-option"><input type="checkbox" id="yonge-dundas" value="yonge-dundas"><label for="yonge-dundas">Yonge Dundas VIP</label></div>
+        <div class="cinema-option"><input type="checkbox" id="yonge-eglinton" value="yonge-eglinton"><label for="yonge-eglinton">Yonge-Eglinton VIP</label></div>
+        <div class="cinema-option"><input type="checkbox" id="empress-walk" value="empress-walk"><label for="empress-walk">Empress Walk</label></div>
+      </div>
+    </div>
+
+    <div class="divider"><span>Frequency</span></div>
+
+    <div class="form-group">
+      <div class="freq-toggle">
+        <div class="freq-option"><input type="radio" id="daily" name="frequency" value="daily"><label for="daily">Daily</label></div>
+        <div class="freq-option"><input type="radio" id="weekly" name="frequency" value="weekly" checked><label for="weekly">Weekly</label></div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">Subscribe</button>
+    <div class="status" id="statusMsg"></div>
+  </form>
+
+  <div class="footer">Free · No spam · Unsubscribe anytime</div>
+</div>
+
+<script>
+  const API_URL = 'toronto-cinema-mailer-production.up.railway.app'; // Change to production URL after deploy
+
+  const selectAllBtn = document.getElementById('selectAllBtn');
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  let allSelected = false;
+
+  selectAllBtn.addEventListener('click', () => {
+    allSelected = !allSelected;
+    checkboxes.forEach(cb => cb.checked = allSelected);
+    selectAllBtn.textContent = allSelected ? 'Deselect all' : 'Select all';
+  });
+
+  document.getElementById('subscribeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const cinemas = [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
+    const frequency = document.querySelector('input[name="frequency"]:checked').value;
+    const btn = document.getElementById('submitBtn');
+    const status = document.getElementById('statusMsg');
+
+    if (!cinemas.length) {
+      status.className = 'status error';
+      status.textContent = 'Please select at least one cinema.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Subscribing...';
+    status.className = 'status';
+
+    try {
+      const res = await fetch(`${API_URL}/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, cinemas, frequency }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        status.className = 'status success';
+        status.textContent = data.message || 'Check your email to confirm!';
+        btn.textContent = 'Subscribed ✓';
+      } else {
+        throw new Error(data.detail || 'Something went wrong.');
+      }
+    } catch (err) {
+      status.className = 'status error';
+      status.textContent = err.message;
+      btn.disabled = false;
+      btn.textContent = 'Subscribe';
+    }
+  });
+</script>
+</body>
+</html>

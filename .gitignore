@@ -1,0 +1,23 @@
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Debug files
+debug_*.py
+test_*.py
+email_preview.html
+
+# Playwright
+playwright/.local-browsers/
+
+# OS
+.DS_Store
+Thumbs.db
